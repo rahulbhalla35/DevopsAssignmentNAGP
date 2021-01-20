@@ -11,12 +11,12 @@ pipeline{
                 sh "mvn install"
             }
         }
-        stage("Perform Test"){
+        stage("Third - Perform Unit Test"){
             steps{
                 sh "mvn test"
             }
         }   
-        stage("Perform Sonar Analysis"){
+        stage("Fourth - Perform Sonar Analysis"){
             steps{
                 withSonarQubeEnv("Test_Sonar")
                 {
@@ -25,13 +25,25 @@ pipeline{
             }
         }
         
-        stage("Upload to Artifactory"){
+        stage("Fifth - Upload to Artifactory"){
             
             steps{
                 sh "mvn deploy"
                 rtPublishBuildInfo(
                     serverId: '123456789@artifactory',
                         )
+            }
+        }
+        
+        stage('Docker - Build Image'){
+            steps{
+                sh "docker build -t devopsassignmentimage:${BUILD_NUMBER} ."
+            }
+        }
+        
+        stage('Docker - Deployment'){
+            steps{
+                sh "docker run --name devopsassignmentcontainer -d -p 9050:8080 devopsassignmentimage:${BUILD_NUMBER}"
             }
         }
     }
