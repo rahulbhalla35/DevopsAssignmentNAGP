@@ -35,16 +35,16 @@ pipeline{
             }
         }
         
-         stage('Stop & Remove Container if found running'){
-            steps{
-               sh 'docker ps -f name=devopsassignmentcontainer -q | xargs --no-run-if-empty docker container stop'
-               sh 'docker container ls -a -fname=devopsassignmentcontainer -q | xargs -r docker container rm'
-            }
-        }
-        
         stage('Docker - Build Image'){
             steps{
                 sh "docker build -t devopsassignmentimage:${BUILD_NUMBER} ."
+            }
+        }
+        
+        stage('Stop & Remove Container if found running'){
+            steps{
+               sh 'docker ps -f name=devopsassignmentcontainer -q | xargs --no-run-if-empty docker container stop'
+               sh 'docker container ls -a -fname=devopsassignmentcontainer -q | xargs -r docker container rm'
             }
         }
         
