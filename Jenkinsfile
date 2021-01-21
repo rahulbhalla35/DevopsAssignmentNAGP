@@ -1,22 +1,22 @@
 pipeline{
     agent any
     stages{
-        stage("First - Code Checkout"){
+        stage("Begin - Code Checkout"){
             steps{
                 checkout scm
             }
         }
-        stage("Second - Build Code"){
+        stage("Build Code"){
             steps{
                 sh "mvn install"
             }
         }
-        stage("Third - Perform Unit Test"){
+        stage("Perform Unit Test"){
             steps{
                 sh "mvn test"
             }
         }   
-        stage("Fourth - Perform Sonar Analysis"){
+        stage("Perform Sonar Analysis"){
             steps{
                 withSonarQubeEnv("Test_Sonar")
                 {
@@ -25,13 +25,20 @@ pipeline{
             }
         }
         
-        stage("Fifth - Upload to Artifactory"){
+        stage("Upload to Artifactory"){
             
             steps{
                 sh "mvn deploy"
                 rtPublishBuildInfo(
                     serverId: '123456789@artifactory',
                         )
+            }
+        }
+        
+         stage('Stop & Remove Container if found running'){
+            steps{
+               sh 'docker ps -f name=devopsassignmentcontainer -q | xargs --no-run-if-empty docker container stop'
+               sh 'docker container ls -a -fname=devopsassignmentcontainer -q | xargs -r docker container rm'
             }
         }
         
